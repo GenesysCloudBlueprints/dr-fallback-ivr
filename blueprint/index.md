@@ -312,5 +312,5 @@ To hear the voicemail and process the callback:
 * [GitHub Actions](https://docs.github.com/en/actions "Opens the Github Actions page") in the GitHub website
 * [Terraform Cloud](https://app.terraform.io/signup/account "Opens the Terraform Cloud sign up page") in the Terraform Cloud website
 * [Terraform Registry Documentation](https://registry.terraform.io/providers/MyPureCloud/genesyscloud/latest/docs "Opens the Genesys Cloud provider page") in the Terraform documentation
-* [dr-fallback-ivr repository]* [dr-fallback-ivr repository](https://github.com/GenesysCloudBlueprints/cx-as-code-cicd-gitactions-blueprint "Goes to the r-fallback-ivr repository") in Github
+* [dr-fallback-ivr repository](https://github.com/GenesysCloudBlueprints/cx-as-code-cicd-gitactions-blueprint "Goes to the r-fallback-ivr repository") in Github
 
