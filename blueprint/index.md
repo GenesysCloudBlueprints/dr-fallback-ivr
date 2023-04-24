@@ -263,16 +263,45 @@ Depending on the scenario you want to run you will need to create a file called 
   * `ivr_initial_greeting`
   * `ivr_phone_number`
 
+Finally you will need to modify the `blueprint/terrafrom-ivr/main.tf` and/or `blueprint/terraform-warm-ivr/main.tf` file to use a local file store. This can be done by replacing the opening block of the `main.tf` file from this:
+
+```
+terraform {
+  required_providers {
+    genesyscloud = {
+      source = "mypurecloud/genesyscloud"
+    }
+  }
+  backend "remote" {
+    organization = "thoughtmechanix"
+
+    workspaces {
+      prefix = "ivr_"
+    }
+  }
+}
+```
+
+to this:
+
+```
+terraform {
+  required_providers {
+    genesyscloud = {
+      source = "mypurecloud/genesyscloud"
+    }
+  }
+}
+```
 Once these values are set you can run the Terraform scripts from the command line using the standard Terraform command from the respective directories:
 
 ```
 terraform init
 terraform apply --auto-approve
 ```
-### Test the deployment
+### Test the first scenario
 
-To test the first IVR scenario, you can simply call the phone number you entered via the `ivr_phone_number` parameter. If the `Organization Evacuation Emergency Group` (the emergency group created by the `blueprint/terraform-ivr/main.tf` Terraform script) has not been activated you will
-be presented with the "happy path" in the IVR.  To test the "failure" path take the following actions:
+To test the first IVR scenario, you can simply call the phone number you entered via the `ivr_phone_number` parameter. If the `Organization Evacuation Emergency Group` (the emergency group created by the `blueprint/terraform-ivr/main.tf` Terraform script) has not been activated you will be presented with the "happy path" in the IVR.  To test the "failure" path take the following actions:
 
 1. Log into Genesys Cloud using an account with administrator access.
 2. Click on Admin -> Routing -> Emergency Groups.
@@ -291,6 +320,7 @@ To hear the voicemail that you just left.
 6. The callback should now pop up.  Accept it.
 7. You can then listen to the voicemail by clicking on it or perform an actual call by clicking on the phone number in the callback.
 
+### Test the second scenario
 Testing the second scenario will be organization specific.  
 
 1.  Fail the voice traffic over to the other "warm" Genesys Cloud organization.
