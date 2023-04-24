@@ -40,7 +40,7 @@ In the second scenario, the implementation team wants to have standby IVR in a c
 
 In this first solution, you will leverage Genesys Cloud architect flows, emergency groups, and callbacks to implement our resilient IVR. All components and configurations will be managed via CX as Code and can be deployed via the Terraform CLI or as a CI/CD pipeline using GitHub actions.  This scenario is illustrated below:
 
-![Fallback IVR](blueprint/images/fallbackivr.png "Build a fallback IVR using emergency groups and callbacks")
+![Fallback IVR](/blueprint/images/fallbackivr.png "Build a fallback IVR using emergency groups and callbacks")
 
 In this scenario the following actions take place:
 
@@ -68,7 +68,7 @@ All the code for deploying this solution will be found in `terraform-ivr` direct
 
 In the second scenario, we have two Genesys Cloud organizations with the primary IVR deployed in a similar fashion as solution #1 and a second IVR deployed in a Genesys Cloud organization in a second region. This is illustrated in the following diagram:
 
-![Warm IVR](blueprint/images/warmivr.png "Build a 'Warm' IVR using callbacks")
+![Warm IVR](/blueprint/images/warmivr.png "Build a 'Warm' IVR using callbacks")
 
 In this solution when an emergency is declared the following actions will take place:
 
