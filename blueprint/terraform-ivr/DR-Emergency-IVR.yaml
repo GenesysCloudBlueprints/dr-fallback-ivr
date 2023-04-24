@@ -1,0 +1,389 @@
+inboundCall:
+  name: DR-Emergency-IVR
+  description: "Example IVR where we fail over to a callback"
+  startUpRef: "/inboundCall/tasks/task[Startup Task_42]"
+  defaultLanguage: en-us
+  supportedLanguages:
+    en-us:
+      defaultLanguageSkill:
+        noValue: true
+      textToSpeech:
+        defaultEngine:
+          voice: Jill
+  initialGreeting:
+    tts: {{ivr_initial_greeting}}
+  settingsActionDefaults:
+    playAudioOnSilence:
+      timeout:
+        lit:
+          seconds: 40
+    detectSilence:
+      timeout:
+        lit:
+          seconds: 40
+    callData:
+      processingPrompt:
+        noValue: true
+    collectInput:
+      noEntryTimeout:
+        lit:
+          seconds: 5
+    dialByExtension:
+      interDigitTimeout:
+        lit:
+          seconds: 6
+    transferToUser:
+      connectTimeout:
+        noValue: true
+    transferToNumber:
+      connectTimeout:
+        noValue: true
+    transferToGroup:
+      connectTimeout:
+        noValue: true
+    transferToFlowSecure:
+      connectTimeout:
+        lit:
+          seconds: 15
+  settingsErrorHandling:
+    errorHandling:
+      disconnect:
+        none: true
+    preHandlingAudio:
+      tts: {{ivr_failure}}
+  settingsMenu:
+    extensionDialingMaxDelay:
+      lit:
+        seconds: 1
+    listenForExtensionDialing:
+      lit: true
+    menuSelectionTimeout:
+      lit:
+        seconds: 10
+    repeatCount:
+      lit: 3
+  settingsPrompts:
+    ensureAudioInPrompts: false
+    promptMediaToValidate:
+      - mediaType: audio
+      - mediaType: tts
+  settingsSpeechRec:
+    completeMatchTimeout:
+      lit:
+        ms: 100
+    incompleteMatchTimeout:
+      lit:
+        ms: 1500
+    maxSpeechLengthTimeout:
+      lit:
+        seconds: 20
+    minConfidenceLevel:
+      lit: 50
+    asrCompanyDir: none
+    asrEnabledOnFlow: true
+  menus:
+    - menu:
+        name: Main Menu
+        refId: Main Menu_10
+        audio:
+          exp: AudioPlaybackOptions(ToAudioTTS("You are at the Main Menu, press 1 for life insurance, press 2 for Annuities, press 3 for mutual funds, press 4 for brokerage, press 5 for health insurance and press 6 for General Support"), false)
+        settingsMenu:
+          extensionDialingMaxDelay:
+            noValue: true
+          listenForExtensionDialing:
+            noValue: true
+          menuSelectionTimeout:
+            noValue: true
+          repeatCount:
+            noValue: true
+        settingsSpeechRec:
+          completeMatchTimeout:
+            noValue: true
+          incompleteMatchTimeout:
+            noValue: true
+          maxSpeechLengthTimeout:
+            noValue: true
+          minConfidenceLevel:
+            noValue: true
+        choices:
+          - menuTask:
+              name: Life Insurance
+              dtmf: digit_1
+              globalDtmf: false
+              globalSpeechRecTerms: true
+              task:
+                actions:
+                  - transferToAcd:
+                      name: Transfer to ACD
+                      targetQueue:
+                        lit:
+                          name: Life Insurance
+                      priority:
+                        lit: 0
+                      preferredAgents:
+                        noValue: true
+                      languageSkill:
+                        noValue: true
+                      failureOutputs:
+                        errorType:
+                          noValue: true
+                        errorMessage:
+                          noValue: true
+                      outputs:
+                        failure:
+                          actions:
+                            - playAudio:
+                                name: Play Audio
+                                audio:
+                                  tts: {{ivr_failure}}
+                  - disconnect:
+                      name: Disconnect
+              speechRecTerms:
+                en-us:
+                  terms:
+                    - Life Insurance
+          - menuTask:
+              name: Annuities
+              dtmf: digit_2
+              globalDtmf: false
+              globalSpeechRecTerms: true
+              task:
+                actions:
+                  - transferToAcd:
+                      name: Transfer to ACD
+                      targetQueue:
+                        lit:
+                          name: Annuity
+                      priority:
+                        lit: 0
+                      preferredAgents:
+                        noValue: true
+                      languageSkill:
+                        noValue: true
+                      failureOutputs:
+                        errorType:
+                          noValue: true
+                        errorMessage:
+                          noValue: true
+                      outputs:
+                        failure:
+                          actions:
+                            - playAudio:
+                                name: Play Audio
+                                audio:
+                                  tts: {{ivr_failure}}
+                  - disconnect:
+                      name: Disconnect
+              speechRecTerms:
+                en-us:
+                  terms:
+                    - Annuities
+                    - Annuity
+          - menuTask:
+              name: Mutual Funds
+              dtmf: digit_3
+              globalDtmf: false
+              globalSpeechRecTerms: true
+              task:
+                actions:
+                  - transferToAcd:
+                      name: Transfer to ACD
+                      targetQueue:
+                        lit:
+                          name: Mutual Funds
+                      priority:
+                        lit: 0
+                      preferredAgents:
+                        noValue: true
+                      languageSkill:
+                        noValue: true
+                      failureOutputs:
+                        errorType:
+                          noValue: true
+                        errorMessage:
+                          noValue: true
+                      outputs:
+                        failure:
+                          actions:
+                            - playAudio:
+                                name: Play Audio
+                                audio:
+                                  tts: {{ivr_failure}}
+                  - disconnect:
+                      name: Disconnect
+              speechRecTerms:
+                en-us:
+                  terms:
+                    - Mutual Funds
+          - menuTask:
+              name: Brokerage
+              dtmf: digit_4
+              globalDtmf: false
+              globalSpeechRecTerms: true
+              task:
+                actions:
+                  - transferToAcd:
+                      name: Transfer to ACD
+                      targetQueue:
+                        lit:
+                          name: Brokerage
+                      priority:
+                        lit: 0
+                      preferredAgents:
+                        noValue: true
+                      languageSkill:
+                        noValue: true
+                      failureOutputs:
+                        errorType:
+                          noValue: true
+                        errorMessage:
+                          noValue: true
+                      outputs:
+                        failure:
+                          actions:
+                            - playAudio:
+                                name: Play Audio
+                                audio:
+                                  tts: {{ivr_failure}}
+                  - disconnect:
+                      name: Disconnect
+              speechRecTerms:
+                en-us:
+                  terms:
+                    - Brokerage
+          - menuTask:
+              name: Health Insurance
+              dtmf: digit_5
+              globalDtmf: false
+              globalSpeechRecTerms: true
+              task:
+                actions:
+                  - transferToAcd:
+                      name: Transfer to ACD
+                      targetQueue:
+                        lit:
+                          name: Health Insurance
+                      priority:
+                        lit: 0
+                      preferredAgents:
+                        noValue: true
+                      languageSkill:
+                        noValue: true
+                      failureOutputs:
+                        errorType:
+                          noValue: true
+                        errorMessage:
+                          noValue: true
+                      outputs:
+                        failure:
+                          actions:
+                            - playAudio:
+                                name: Play Audio
+                                audio:
+                                  tts: {{ivr_failure}}
+                  - disconnect:
+                      name: Disconnect
+              speechRecTerms:
+                en-us:
+                  terms:
+                    - Health Insurance
+                    - Medicare
+                    - Medicaid
+          - menuDisconnect:
+              name: Disconnect
+              dtmf: digit_7
+              globalDtmf: false
+              globalSpeechRecTerms: true
+              speechRecTerms:
+                en-us:
+                  terms:
+                    - Disconnect
+                    - Hangup
+          - menuTask:
+              name: General Support
+              dtmf: digit_6
+              globalDtmf: false
+              globalSpeechRecTerms: true
+              task:
+                actions:
+                  - transferToAcd:
+                      name: Transfer to ACD
+                      targetQueue:
+                        lit:
+                          name: General Help
+                      priority:
+                        lit: 0
+                      preferredAgents:
+                        noValue: true
+                      languageSkill:
+                        noValue: true
+                      failureOutputs:
+                        errorType:
+                          noValue: true
+                        errorMessage:
+                          noValue: true
+                      outputs:
+                        failure:
+                          actions:
+                            - playAudio:
+                                name: Play Audio
+                                audio:
+                                  tts: {{ivr_failure}}
+                  - disconnect:
+                      name: Disconnect
+              speechRecTerms:
+                en-us:
+                  terms:
+                    - General Support
+                    - Help
+                    - Operator
+  tasks:
+    - task:
+        name: Startup Task
+        refId: Startup Task_42
+        actions:
+          - evaluateScheduleGroup:
+              name: Evaluate Schedule Group
+              inServiceSchedules:
+                noValue: true
+              evaluate:
+                now: true
+              scheduleGroup:
+                exp: ToScheduleGroup(NOT_SET)
+              emergencyGroup:
+                lit:
+                  name: Site Emergency Group
+                name: Site Emergency Group
+              outputs:
+                emergency:
+                  actions:
+                    - transferToVoicemail:
+                        name: Transfer to Voicemail
+                        destination:
+                          queue:
+                            targetQueue:
+                              lit:
+                                name: General Help
+                            callbackNumber:
+                              exp: ToPhoneNumber(Call.Ani)
+                            calleeName:
+                              noValue: true
+                            voicemailGreeting:
+                              exp: AudioPlaybackOptions(ToAudioTTS("{{ivr_callback}}"), false)
+                        failureOutputs:
+                          errorType:
+                            noValue: true
+                          errorMessage:
+                            noValue: true
+                        outputs:
+                          failure:
+                            actions:
+                              - playAudio:
+                                  name: Play Audio
+                                  audio:
+                                    tts: {{ivr_failure}}
+                              - disconnect:
+                                  name: Disconnect
+          - jumpToMenu:
+              name: Go to main menu
+              targetMenuRef: "/inboundCall/menus/menu[Main Menu_10]"
