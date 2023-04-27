@@ -13,7 +13,7 @@ Genesys Cloud blueprints were built to help you jump-start building an applicati
 Blueprints are meant to outline how to build and deploy your solutions, not a production-ready turn-key solution.
  
 For more details on Genesys Cloud blueprint support and practices, 
-see our Genesys Cloud blueprint [FAQ](https://developer.genesys.cloud/blueprints/faq)sheet.
+see our Genesys Cloud blueprint [FAQ](https://developer.genesys.cloud/blueprints/faq) sheet.
 :::
 
 This Genesys Cloud Developer Blueprint describes how to deploy both resilient IVR examples to two different Genesys Cloud organizations using GitHub Actions.
@@ -68,7 +68,7 @@ In the second scenario, we have two Genesys Cloud organizations with the primary
 
 ![Warm IVR](/blueprint/images/warmivr.png "Build a 'Warm' IVR using callbacks")
 
-Following the declaration of an emergency, these actions will be taken:
+Following the declaration of an emergency, these actions are taken:
 
 1. Voice traffic from the primary Genesys Cloud organization is manually failed to the secondary Genesys Cloud organization by a Genesys Cloud administrator. 
 
