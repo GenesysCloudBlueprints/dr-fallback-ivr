@@ -308,7 +308,7 @@ Listen to the voicemail you just left.
 4. Assign yourself as a member of that queue.
 5. Click the slide bar in the upper right corner to go to the queue.
 
-You should now see The callback. 
+You should now see the callback. 
 
 6. Accept the callback.
 7. Click the voicemail icon to listen to it or call the number in the callback to place an actual call.
@@ -329,16 +329,16 @@ Process the callback and hear the voicemail:
 2. Click Admin -> Contact Center -> Queues.
 3. Locate the `General Help` queue and click on its link.
 4. Assign yourself as a member of that queue.
-5. Click the slide bar in the upper right corner to go to the queue.You should now see The callback. 
+5. Click the slide bar in the upper right corner to go to the queue.You should now see the callback. 
 
-You should now see The callback. 
+You should now see the callback. 
 
 6. Accept the callback.
 7. Click the voicemail icon to listen to it or call the number in the callback to place an actual call.
 
 ## Additional resources
 
-* [GitHub Actions](https://docs.github.com/en/actions "Goes to the GitHub Actions page") on the GitHub website.
+* [GitHub Actions Documentation](https://docs.github.com/en/actions "Goes to the GitHub Actions Documentation page") on the GitHub website.
 * [Terraform Cloud](https://app.terraform.io/signup/account "Goes to the Terraform Cloud sign up page") on the Terraform Cloud website.
 * [Terraform Registry Documentation](https://registry.terraform.io/providers/MyPureCloud/genesyscloud/latest/docs "Goes to the Genesys Cloud provider page") on the Terraform website.
 * [dr-fallback-ivr repository](https://github.com/GenesysCloudBlueprints/cx-as-code-cicd-gitactions-blueprint "Goes to the r-fallback-ivr repository") in GitHub.
