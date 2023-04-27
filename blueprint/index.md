@@ -32,7 +32,7 @@ An organization is interested in developing a resilient IVR that can be used in 
 
 The first scenario, the team wants to implement an IVR that collects voicemail and processes automated callbacks. When the emergency has been resolved, ALL agents can immediately process customer callbacks.  
 
-The second scenario, the implementation team wants the standby IVR to be in a different Genesys Cloud region. They want voice traffic failover on the standby IVR and a small subset of agents (e.g. supervisors) to be able to take calls from the remote region. Because of the variability and volatility of the situation, all customer calls should be directed to voicemail and agents will call back. 
+The second scenario, the implementation team wants the standby IVR to be in a different Genesys Cloud region. They want voice traffic failover on the standby IVR and a small subset of agents (e.g., supervisors) to be able to take calls from the remote region. Because of the variability and volatility of the situation, all customer calls should be directed to voicemail and agents will call back. 
 
 
 ## Solution 1 - IVR Failover within a single Genesys Cloud organization
@@ -166,10 +166,10 @@ Terraform variables parameterize your scripts. Terraform providers usually use e
 1. Click **Variables**.
 2. Define the following Terraform variables:
 
-  * `ivr_callback` - When the IVR flow is deployed, a message is injected to indicate an emergency. (e.g. We are currently unable to take your call at this time due to an unexpected emergency. Please leave a voicemail message and a representative will call you back as soon as possible.)
+  * `ivr_callback` - When the IVR flow is deployed, a message is injected to indicate an emergency. (e.g., We are currently unable to take your call at this time due to an unexpected emergency. Please leave a voicemail message and a representative will call you back as soon as possible.)
   * `ivr_emergency_group_enabled` - The deployment of an emergency group should be activated by default. This is a `true`/`false` that should be set to `false`.
-  * `ivr_failure` - The error message displayed if the IVR cannot recover from the error. (e.g. Sorry, an unrecoverable message has occurred. Please try to call back at another time.)
-  * `ivr_initial_greeting` - The IVR plays this greeting at the beginning of the call. (e.g. Hello, welcome to Commonwealth Investment).
+  * `ivr_failure` - The error message displayed if the IVR cannot recover from the error. (e.g., Sorry, an unrecoverable message has occurred. Please try to call back at another time.)
+  * `ivr_initial_greeting` - The IVR plays this greeting at the beginning of the call. (e.g., Hello, welcome to Commonwealth Investment).
   * `ivr_phone_number` - The IVR "front" phone number.
  
 3. Define your environment variables:  
