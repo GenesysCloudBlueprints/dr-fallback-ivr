@@ -283,7 +283,7 @@ terraform {
   }
 }
 ```
-Once these values are set, Terraform scripts can be run from the command line using the standard Terraform commands:
+Once these values are set, Terraform scripts can run from the command line using the standard Terraform commands:
 
 ```
 terraform init
