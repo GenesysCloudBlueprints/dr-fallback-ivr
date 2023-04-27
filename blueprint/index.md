@@ -302,7 +302,7 @@ You can test the first IVR scenario by calling the phone number you entered in t
 
 Listen to the voicemail you just left.
 
-1. Log into Genesys Cloud using anadministrator  account.
+1. Log into Genesys Cloud using an administrator account.
 2. Click Admin -> Contact Center -> Queues.
 3. Locate the `General Help` queue and click the link for the queue name.
 4. Assign yourself as a member of that queue.
