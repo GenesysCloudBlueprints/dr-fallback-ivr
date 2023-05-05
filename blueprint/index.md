@@ -6,100 +6,91 @@ icon: blueprint
 image: images/blueprintcover.png
 category: 5
 summary: |
-  This Genesys Cloud Developer Blueprint explains how to use GitHub Actions to deploy both examples of resilient IVRs to two different Genesys Cloud organizations.
+  This Genesys Cloud Developer Blueprint describes how to deploy both resilient IVR examples to two different Genesys Cloud organizations using GitHub Actions.
 ---
 :::{"alert":"primary","title":"About Genesys Cloud Blueprints","autoCollapse":false}
 Genesys Cloud blueprints were built to help you jump-start building an application or integrating with a third-party partner. 
 Blueprints are meant to outline how to build and deploy your solutions, not a production-ready turn-key solution.
  
-For more details on Genesys Cloud blueprint support and practices 
-please see our Genesys Cloud blueprint [FAQ](https://developer.genesys.cloud/blueprints/faq)sheet.
+For more details on Genesys Cloud blueprint support and practices, 
+see our Genesys Cloud blueprint [FAQ](https://developer.genesys.cloud/blueprints/faq) sheet.
 :::
 
-This Genesys Cloud Developer Blueprint explains how to use GitHub Actions to deploy both examples of resilient IVRs to two different Genesys Cloud organizations.
+This Genesys Cloud Developer Blueprint describes how to deploy both resilient IVR examples to two different Genesys Cloud organizations using GitHub Actions.
 
 This blueprint also demonstrates how to:
 
-* Set up a GitHub Action CI/CD pipeline to execute a CX-as-Code deployment
-* Configure Terraform Cloud to manage the backing state for the CX-as-Code deployment along with the lock management for the Terraform deployment
-
+* Set up a GitHub Action CI/CD pipeline to deploy CX-as-Code
+* Configure Terraform Cloud to manage the backing state for the CX-as-Code deployment, and the lock management for Terraform
 
 ## Scenario
 
-An organization is interested in building a resilient IVR that can be used in two different scenarios:
+An organization is interested in developing a resilient IVR that can be used in two different scenarios:
 
-1. **Genesys Cloud is available, but your organization is unable to process calls within your contact center.** 
-2. **Genesys Cloud availability is being impacted in one region, but you want to fail over calls to an IVR running in another Genesys Cloud region.**
+1. **Genesys Cloud is available, but your organization cannot process calls within your contact center.** 
+2. **Genesys Cloud availability is impacted in one region, but you want to fail over calls to an IVR running in a different Genesys Cloud region.**
 
-In the first scenario, the team wants to implement an IVR that can collect voicemail and process automated callbacks so that when the emergency is over ALL agents can immediately start processing the customer callbacks.  
+The first scenario, the team wants to implement an IVR that collects voicemail and processes automated callbacks. When the emergency has been resolved, ALL agents can immediately process customer callbacks.  
 
-In the second scenario, the implementation team wants to have standby IVR in a completely separate Genesys Cloud region. They want to failover over voice traffic to the standby IVR and have a small subset of their total agent population (e.g. supervisors) log into the remote region to take calls. Because of the variability and volatility of the situation they want all customer calls to first go to voicemail and have the agents call back the customers. 
+The second scenario, the implementation team wants the standby IVR to be in a different Genesys Cloud region. They want voice traffic failover on the standby IVR and a small subset of agents (e.g., supervisors) to be able to take calls from the remote region. Because of the variability and volatility of the situation, all customer calls should be directed to voicemail and agents will call back. 
 
 
 ## Solution 1 - IVR Failover within a single Genesys Cloud organization
 
-In this first solution, you will leverage Genesys Cloud architect flows, emergency groups, and callbacks to implement our resilient IVR. All components and configurations will be managed via CX as Code and can be deployed via the Terraform CLI or as a CI/CD pipeline using GitHub actions.  This scenario is illustrated below:
+The first solution demonstrates how Genesys Cloud architect flows, emergency groups, and callbacks can be used to implement a resilient IVR system. All components and configurations are managed through CX as Code and deployed using Terraform CLI or GitHub actions as part of CI/CD pipelines. The following is an illustration:
 
 ![Fallback IVR](/blueprint/images/fallbackivr.png "Build a fallback IVR using emergency groups and callbacks")
 
-In this scenario the following actions take place:
+The following actions are taken in this scenario:
 
-1. A customer calls the organization and is going to be directed to an IVR. The IVR checks to see if an emergency group called the `Organization Evacuation Emergency Group` is active. If the emergency group is not active,  normal call processing will occur by directing the user to an IVR menu with 6 destinations.  This check of the emergency group will occur as a startup task that will be executed before a customer is given a menu of choices.
+1. When a customer calls the organization, they are directed to an IVR. The IVR checks whether the `Organization Evacuation Emergency Group` is active. Users who do not have an active emergency group are directed to an IVR menu with six destinations. The emergency group check is performed as a startup task before the customer is presented with options.
 
-2. If there is an emergency, a supervisor will log into Genesys Cloud and will activate the Emergency Group.
+2. A supervisor activates the Emergency Group in Genesys Cloud in an emergency.
 
-3.  Now if a customer calls, the IVR will check the emergency group and if it is active. It will direct the user to a voicemail box associated with the `General Help` support queue. 
+3. In the IVR, the customer is now notified if an emergency group is active when they call. The user will be directed to a voicemail box associated with the `General Help` support queue. 
  
-4.  Once a voicemail is left by the customer, a callback will be created and placed in the `General Help`  queue. This callback will capture the phone number the user originally used to call the organization.
+4. When the customer leaves a voicemail, a callback is created and placed in the `General Help` queue. A callback captures the phone number the user initially used to call the organization.
 
-5.  After the emergency is over, a Genesys Cloud supervisor will deactivate the `Organization Evacuation Emergency Group` emergency group and calls will through the normal IVR flows. As agents log back in and go on queue, they will be presented with the voicemail and the callback information for the customer. They can proceed to call back the customer and process transactions normally.
+5. After the emergency ends, a Genesys Cloud supervisor deactivates the `Organization Evacuation Emergency Group` emergency group. The call passes through the normal IVR flow. Upon login, agents see the customer's voicemail and callback information. The customer can be contacted and then the transaction can be completed normally.
 
-This solution will use:
+This solution uses:
 
 1. [A Genesys Cloud Inbound Call Architect Flow](https://help.mypurecloud.com/articles/about-inbound-flows/).
 2.  [A call routing configuration to map the IVRs phone number to the IVR flow](https://help.mypurecloud.com/articles/about-call-routing/)
 3.  [A Genesys Cloud Emergency Group](https://help.mypurecloud.com/articles/add-an-emergency-group/).  
 4.  [Six Genesys Cloud Queues](https://help.mypurecloud.com/articles/create-queues-2/).
 
-All the code for deploying this solution will be found in `terraform-ivr` directory.  Users and user assignment to queues will not occur through the Terraform scripts and will need to be manually or through [Genesys Cloud's SCIM](https://help.mypurecloud.com/articles/about-genesys-cloud-scim-identity-management/) integration.
-
+The code for deploying this solution can be found in the `terraform-ivr` directory. Users and queue assignment do not happen through Terraform scripts. Instead, they need to be done manually or through the [Genesys Cloud's SCIM](https://help.mypurecloud.com/articles/about-genesys-cloud-scim-identity-management/) integration.
 
 ## Solution 2 - IVR Failover to another Genesys Cloud region
 
-In the second scenario, we have two Genesys Cloud organizations with the primary IVR deployed in a similar fashion as solution #1 and a second IVR deployed in a Genesys Cloud organization in a second region. This is illustrated in the following diagram:
+In the second scenario, we have two Genesys Cloud organizations with the primary IVR deployed similarly to solution #1. There is also a second IVR deployed in a Genesys Cloud organization in a different region. The following diagram illustrates this.
 
 ![Warm IVR](/blueprint/images/warmivr.png "Build a 'Warm' IVR using callbacks")
 
-In this solution when an emergency is declared the following actions will take place:
+Following the declaration of an emergency, these actions are taken:
 
-1. A Genesys Cloud administrator will fail voice traffic manually over from the primary Genesys Cloud organization to the secondary organization. 
+1. Voice traffic from the primary Genesys Cloud organization is manually failed to the secondary Genesys Cloud organization by a Genesys Cloud administrator. 
 
-2.  In the secondary organization, there will be a very simple IVR that will route the user to a voicemail box for a queue called `General Help` and allow the customer to leave a voicemail.  When a voicemail is left a callback for the customer will also be created.
+2. IIn the secondary organization, there is a simple IVR that routes users to a voicemail box queue called `General Help`. Voicemails can be left by the customer. When a voicemail is left, a callback is created.
 
-3.  A smaller group of agents will log into the secondary organization to start processing callbacks from the customer. It is important to note a Genesys Cloud group called `Emergency Group` will be assigned to the `General Help` queue in the secondary organization.  All agents who will process calls must be a member of this group in order to receive callbacks for processing.
+3. A small group of agents log into the secondary organization to handle customer callbacks. In the secondary organization, it is important to assign the Genesys Cloud group `Emergency Group` to the `General Help` queue. Callbacks must be received by members of this group for agents to process the calls.
 
-This solutions will use:
+This solutions uses:
 
-1. [A Genesys Cloud Inbound Call Architect Flow](https://help.mypurecloud.com/articles/about-inbound-flows/).
-2. [A call routing configuration to map the IVRs phone number to the IVR flow](https://help.mypurecloud.com/articles/about-call-routing/) 
-3. [One Genesys Cloud Queues](https://help.mypurecloud.com/articles/create-queues-2/).
-4. [A Genesys Cloud Group](https://help.mypurecloud.com/articles/groups-overview/#:~:text=Genesys%20Cloud%20groups%20organize%20people,groups%20and%20skill%20expression%20groups.).
-5. [Genesys Cloud SCIM integration](https://help.mypurecloud.com/articles/about-genesys-cloud-scim-identity-management/)
+1. [A Genesys Cloud Inbound Call Architect Flow](https://help.mypurecloud.com/articles/about-inbound-flows/ "Opens the Inbound flows overview article").
+2. [A call routing configuration to map the IVRs phone number to the IVR flow](https://help.mypurecloud.com/articles/about-call-routing/ "Opens the Call routing overview article") 
+3. [One Genesys Cloud Queues](https://help.mypurecloud.com/articles/create-queues-2/ "Opens the Create queues article").
+4. [A Genesys Cloud Groups overview](https://help.mypurecloud.com/articles/groups-overview/#:~:text=Genesys%20Cloud%20groups%20organize%20people,groups%20and%20skill%20expression%20groups "Opens the Groups overview article").
+5. [Genesys Cloud SCIM integration](https://help.mypurecloud.com/articles/about-genesys-cloud-scim-identity-management/ "Opens the About Genesys Cloud SCIM (Identity Management article")
 
-The IVR architect flow, call routing configuration, queue configuration and the group configuration can be found in `terraform-warm-ivr` directory. Setting up and configuring Genesys Cloud SCIM is the preferred mechanism to handle user provisioning and assigning users to groups. While CX as Code can do this type of work, it is not recommended.  
+IVR architect flow, call routing configuration, queue configuration and the group configuration can be found in the `terraform-warm-ivr` directory. Setting up and configuring Genesys Cloud SCIM is the preferred mechanism for provisioning and assigning users to groups. This type of work can be done with CX as Code, but it is not recommended.  
 
-We will not be walking through SCIM setup in this blueprint. Please refer to the [Genesys Cloud SCIM]((https://help.mypurecloud.com/articles/about-genesys-cloud-scim-identity-management/)) documentation for more information.
-
-## Contents
-
-* [Solution components](#solution-components "Goes to the Solution components section")
-* [Specialized Knowledge](#prerequisites "Goes to the Prerequisites section")
-* [Implementation steps](#implementation-steps "Goes to the Implementation steps section")
-* [Additional resources](#additional-resources "Goes to the Additional resources section")
+SCIM setup is not covered in this blueprint. For more information, see the [About Genesys Cloud SCIM (Identity Management](https://help.mypurecloud.com/articles/about-genesys-cloud-scim-identity-management/ "Opens the About Genesys Cloud SCIM (Identity Management article") documentation.
 
 ## Solution components
 
-* **Genesys Cloud** - A suite of Genesys Cloud services for enterprise-grade communications, collaboration, and contact center management. In this solution, you use an Architect inbound email flow, and a Genesys Cloud integration, data action, queues, and email configuration.
+* **Genesys Cloud** - A suite of Genesys Cloud services for enterprise-grade communications, collaboration, and contact center management. In this solution, you use an Architect inbound email flow, and Genesys Cloud integration, data action, queues, and email configuration.
 * **CX as Code** - A Genesys Cloud Terraform provider that provides a command line interface for declaring core Genesys Cloud objects.
 * **GitHub** - A cloud-based source control system that facilitates collaboration on development projects.
 * **Terraform Cloud** - A cloud-based Terraform solution that provides backend state storage and locking at scale.
@@ -113,12 +104,12 @@ While the primary focus of this blueprint will be setting up a CI/CD pipeline, t
 * Experience with Terraform or Terraform Cloud
 
 :::primary
-**Tip**: Both GitHub and Terraform Cloud provide free-tier services that you can use to test this blueprint.
+**Tip**: This blueprint can be tested on Terraform Cloud or GitHub's free tiers.
 :::
 
 ### Genesys Cloud account
 
-* A Genesys Cloud license. For more information, see [Genesys Cloud Pricing](https://www.genesys.com/pricing "Opens the Genesys Cloud pricing page") in the Genesys website.
+* A Genesys Cloud license. For more information, see [Genesys Cloud Pricing](https://www.genesys.com/pricing "Goes to the Genesys Cloud pricing page") on the Genesys website.
 * Master Admin role. For more information, see [Roles and permissions overview](https://help.mypurecloud.com/?p=24360 "Opens the Roles and permissions overview article") in the Genesys Cloud Resource Center.
 * CX as Code. For more information, see [CX as Code](https://developer.genesys.cloud/api/rest/CX-as-Code/ "Opens the CX as Code page").
 
@@ -128,7 +119,7 @@ While the primary focus of this blueprint will be setting up a CI/CD pipeline, t
 * A GitHub account with administrator-level permissions
 
 :::primary
-**Tip**: Both GitHub and Terraform Cloud provide free-tier services that you can use to test this blueprint.
+**Tip**: This blueprint can be tested on Terraform Cloud or GitHub's free tiers.
 :::
 
 ## Implementation steps
@@ -141,7 +132,7 @@ While the primary focus of this blueprint will be setting up a CI/CD pipeline, t
 
 ### Clone the GitHub repository
 
-Clone the GitHub repository [GenesysCloudBlueprints/dr-fallback-ivr](https://github.com/GenesysCloudBlueprints/dr-fallback-ivr "Opens the GitHub repository") to your local machine. The `dr-fallback-ivr/blueprint` folder includes solution-specific scripts and files in these subfolders:
+Clone the GitHub repository [GenesysCloudBlueprints/dr-fallback-ivr](https://github.com/GenesysCloudBlueprints/dr-fallback-ivr "Opens the GitHub repository") to your local machine. The `dr-fallback-ivr/blueprint` folder contains solution-specific scripts and files in these subfolders:
 * `terraform-ivr`
 * `terraform-warm-ivr`
 
@@ -149,37 +140,37 @@ Clone the GitHub repository [GenesysCloudBlueprints/dr-fallback-ivr](https://git
 
 Terraform Cloud provides:
 
-*  **A backing store**. Terraform maintains state information for all configuration objects it manages. While there are many ways to set up Terraform backing store, by leveraging Terraform cloud we let Terraform manage all of this infrastructure for us.
-*  **Lock management**. Terraform requires that only one instance of a particular Terraform configuration run at a time. Terraform Cloud provides this locking mechanism and will fail a Terraform deploy if the configuration's deployment is already underway.
-*  **An execution environment**. Terraform Cloud copies your Terraform configuration and runs it remotely in their cloud environment.
+*  **A backing store**. All configuration objects that Terraform manages maintain state information. While Terraform backing stores can be set up in many ways, by leveraging Terraform cloud, we let Terraform manage all infrastructure for us.
+*  **Lock management**. Terraform allows only one configuration instance to run at a time. This lock mechanism is built into Terraform Cloud and will fail a Terraform deployment if the configuration is already in progress.
+*  **An execution environment**. The Terraform Cloud runs your Terraform configuration remotely in one of their cloud environments.
 
-For this blueprint, you need to create two Terraform Cloud workspaces: a production workspace and a fallback workspace for your Terraform IVR examples. In addition, you need to set up the Terraform and environment variables that these workspaces use and a Terraform cloud user token that Github uses to authenticate with Terraform.
+In this blueprint, you need to establish two Terraform Cloud workspaces for your Terraform IVR examples: one for production and one for fallback. You must also configure the Terraform and environment variables that these workspaces use, along with the Terraform cloud user token that GitHub uses to authenticate.
 
-For more information, see [Terraform Configurations in Terraform Cloud Workspaces](https://www.terraform.io/docs/cloud/workspaces/configurations.html "Opens the Terraform Configurations in Terraform Cloud Workspaces page") in the Terraform documentation.
+For more information, see [Terraform Configurations in Terraform Cloud Workspaces](https://www.terraform.io/docs/cloud/workspaces/configurations.html "Goes to the Terraform Configurations in Terraform Cloud Workspaces") on the Terraform website.
 
 #### Set up your production workspace
 
 1.  Click **New Workspace**.
 2.  Select the CLI-driven workflow.
-3.  Provide a workspace name. For this blueprint, we use `ivr_prod`.  
-4.  Click **Create workspace** environment. If everything works correctly the **Waiting for configuration page** appears.  
-5.  Click **Settings** > **General** and verify these settings:
+3.  Enter a workspace name. For this blueprint, we use `ivr_prod`.  
+4.  Click **Create workspace** environment. When everything has been configured correctly, a **Waiting for configuration page** appears.  
+5.  Click **Settings** > **General** and verify the following settings:
   * **Execution mode** - Remote
   * **Terraform Working Directory** - /blueprint/terraform-ivr
 6. Click **Save settings**.
 
 #### Set up your Terraform and environment variables
 
-Terraform variables parameterize your scripts. Environment variables are usually used by Terraform providers to authenticate requests and connect to resources.
+Terraform variables parameterize your scripts. Terraform providers usually use environment variables to authenticate requests and connect to resources.
 
 1. Click **Variables**.
 2. Define the following Terraform variables:
 
-  * `ivr_callback` - This is a message that will be injected into the IVR flow at deployment time indicating that an emergency has taken place. (e.g. We are currently unable to take your call at this time do to an unexpected emergency.  Please leave a voicemail message and a representative will call you back as soon as possible.)
-  * `ivr_emergency_group_enabled` - Whether the deployed emergency group should be activated by default.  This is a `true`/`false` that should be set to `false`.
-  * `ivr_failure` - This is a message that places if the IVR encounters an error that it can not recover from. (e.g. Sorry, an unrecoverable message has occurred. Please try to call back at another time.)
-  * `ivr_initial_greeting` - This is the initial greeting played in the IVR. (e.g. Hello, welcome to Commonwealth Investment).
-  * `ivr_phone_number` - The phone number that will "front" the IVR.
+  * `ivr_callback` - When the IVR flow is deployed, a message is injected to indicate an emergency. (e.g., We are currently unable to take your call at this time due to an unexpected emergency. Please leave a voicemail message and a representative will call you back as soon as possible.)
+  * `ivr_emergency_group_enabled` - The deployment of an emergency group should be activated by default. This is a `true`/`false` that should be set to `false`.
+  * `ivr_failure` - The error message displayed if the IVR cannot recover from the error. (e.g., Sorry, an unrecoverable message has occurred. Please try to call back at another time.)
+  * `ivr_initial_greeting` - The IVR plays this greeting at the beginning of the call. (e.g., Hello, welcome to Commonwealth Investment).
+  * `ivr_phone_number` - The IVR "front" phone number.
  
 3. Define your environment variables:  
 
@@ -189,7 +180,7 @@ Terraform variables parameterize your scripts. Environment variables are usually
 
 #### Set up a warm IVR workspace
 
-Repeat the steps you just completed to set up your prod workspace, but make the following adjustments for your warm IVR workspace:  
+In the warm IVR workspace, repeat the steps you just completed for the prod workspace, but make the following adjustments:  
 
 1. Use a different workspace name. For example: "ivr_fallback_prod". 
 2. Set the following variables to point to your ivr_fallback_prod workspace:
@@ -204,28 +195,28 @@ Repeat the steps you just completed to set up your prod workspace, but make the 
   * `GENESYSCLOUD_REGION`
 #### Set up a Terraform cloud user token
 
-You now need to generate a Terraform Cloud user token so that when Terraform is invoked in our GitHub Action, it can authenticate with Terraform Cloud.
+GitHub Actions require a Terraform Cloud user token so Terraform can authenticate with Terraform Cloud when invoked.
 
 1. Log in to your Terraform Cloud account.
 2. Click your user profile icon.
 3. Select **User settings**.
 4. Navigate to the **Tokens** menu item.
 5. Click **Create an API token**.
-6. Provide a name for the token and click **Create API token**.
-7. Cut and paste the generated token to a safe text file. You will need it later to set up your GitHub action.
+6. Enter a token name, and click **Create API token**.
+7. Cut and paste the generated token into a safe text file. The information is required later when setting up your GitHub action.
 
   :::primary
   **Note**:
-   You will not be able to see the token again and will need to re-generate the token if you lose it.
+   The token cannot be seen again, so you must re-generate it if it is lost.
    :::
 
 8. Click **Done**.
 
 ### Define the GitHub Actions configuration
 
-GitHub Actions are the mechanism in which you define a CI/CD pipeline. GitHub Actions generally consist of two parts:
+GitHub Actions are the mechanism in which CI/CD pipelines are defined. Actions on GitHub usually consist of two parts:
 
-1.  **One or more workflow files** - Github Action Workflow files define the sequence of steps that comprise the CI/CD pipeline. These steps occur when the workflow executes. This blueprint contains a single workflow file called deploy-flow.yaml, which is located in the **.github/workflows** directory. This file contains all of the steps needed to install Terraform, deploy the Architect inbound email flow, and deploy the Genesys Cloud objects to the prod and prod-ivr-fallback organization.
+1.  **One or more workflow files** - The Github Action Workflow files define the sequence of steps in the CI/CD pipeline. Execution of the workflow triggers these steps. This blueprint contains a single workflow file called **deploy-flow.yaml** in the **.github/workflows** directory. This file contains instructions on how to install Terraform, deploy the Architect inbound email flow, and deploy the Genesys Cloud objects to the prod and prod-ivr-fallback organization.
 
 
 2. Add your [Terraform cloud user token](#set-up-a-terraform-cloud-user-token "Goes to the Set up a Terraform cloud user token section"), which Terraform needs to authenticate with Terraform Cloud:
@@ -234,7 +225,7 @@ GitHub Actions are the mechanism in which you define a CI/CD pipeline. GitHub Ac
 
 ### Deploy the Genesys Cloud objects with GitHub Actions
 
-1. To deploy both your Genesys Cloud configuration and your Architect flows, do one of the following:
+1. You can deploy both your Genesys Cloud configuration and your Architect flows as follows:
 
   * **To automatically kick off a deployment**, make a change to the configuration code and commit it to the source repository.  
   * **To manually launch your deployment**:
@@ -245,25 +236,24 @@ GitHub Actions are the mechanism in which you define a CI/CD pipeline. GitHub Ac
     4. Click **Run workflow**.
     5. From the drop-down list, select the main branch and click **Run workflow**.
 
-2. After you start your deployment, click the **Actions** menu item and verify that your deployment appears in the list.
+2. Click the **Actions** menu item after you start your deployment and verify that your deployment appears in the list.
 
 ### Deploy the Genesys Cloud objects with the Terraform CLI
 
-You do not need to deploy the Terraform scripts using GitHub actions. If you want to just run these Terraform scripts directly from your laptop against your Genesys Cloud organizations you will need to
-set the following operating system environment variables in the operating system shell you are going to execute the Terraform commands against:
+You do not have to deploy the Terraform scripts using GitHub actions. You need to set the following operating system variables in the operating system shell you execute the Terraform commands against if you want to run these Terraform scripts directly from your laptop.
 
   * `GENESYSCLOUD_OAUTHCLIENT_ID`
   * `GENESYSCLOUD_OAUTHCLIENT_SECRET`
   * `GENESYSCLOUD_REGION`
 
-Depending on the scenario you want to run you will need to create a file called `ivr.auto.tfvars` in either the `blueprint/terraform-ivr`, `blueprint/terraform-warm-ivr`, or both. In this file, you will need to set the script variables just as if you have set them in Terraform cloud.
+The `ivr.auto.tfvars` file is created either in the `blueprint/terraform-ivr`folder, or in the `blueprint/terraform-warm-ivr` folder, depending on the scenario. The script variables in this file must be set just like in Terraform cloud.
   * `ivr_callback`
   * `ivr_emergency_group_enabled`
   * `ivr_failure`
   * `ivr_initial_greeting`
   * `ivr_phone_number`
 
-Finally you will need to modify the `blueprint/terrafrom-ivr/main.tf` and/or `blueprint/terraform-warm-ivr/main.tf` file to use a local file store. This can be done by replacing the opening block of the `main.tf` file from this:
+Lastly, modify the `blueprint/terrafrom-ivr/main.tf` and/or `blueprint/terraform-warm-ivr/main.tf` files for the local file store. Replace the `main.tf` file opening block with the following:
 
 ```
 terraform {
@@ -293,7 +283,7 @@ terraform {
   }
 }
 ```
-Once these values are set you can run the Terraform scripts from the command line using the standard Terraform command from the respective directories:
+Once these values are set, Terraform scripts can run from the command line using the standard Terraform commands:
 
 ```
 terraform init
@@ -301,46 +291,55 @@ terraform apply --auto-approve
 ```
 ### Test the first scenario
 
-To test the first IVR scenario, you can simply call the phone number you entered via the `ivr_phone_number` parameter. If the `Organization Evacuation Emergency Group` (the emergency group created by the `blueprint/terraform-ivr/main.tf` Terraform script) has not been activated you will be presented with the "happy path" in the IVR.  To test the "failure" path take the following actions:
+You can test the first IVR scenario by calling the phone number you entered in the `ivr_phone_number` parameter. If you do not activate the `Organization Evacuation Emergency Group` (created by the `blueprint/terraform-ivr/main.tf` Terraform script), you are presented with a "happy path" in the IVR. Take the following actions to test the "failure" path:
 
-1. Log into Genesys Cloud using an account with administrator access.
-2. Click on Admin -> Routing -> Emergency Groups.
+1. Log into Genesys Cloud using an administrator account.
+2. Click Admin -> Routing -> Emergency Groups.
 3. Select the emergency group "Organization Evacuation Emergency Group".
-4. Click on the vertical three-period icon to the right of "Organization Evacuation Emergency Group" and select "Activate".
-5. Now make a phone call to the IVR and you should now hear a message indicating that an emergency event has occurred and you will be asked to leave a voicemail.
-6. Record your voicemail and hang up.
+4. Click the three vertical dots icon on the right of the "Organization Evacuation Emergency Group" and select "Activate".
+5. Call the IVR and you should hear a message indicating an emergency event has occurred. You will be asked to leave a voicemail.
+6. Hang up after recording a voicemail.
 
-To hear the voicemail that you just left.
+Listen to the voicemail you just left.
 
-1. Log into Genesys Cloud using an account with administrator access.
-2. Click the Admin -> Contact Center -> Queues.
-3. Locate the `General Help` queue and click on the link for the name of the queue.
+1. Log into Genesys Cloud using an administrator account.
+2. Click Admin -> Contact Center -> Queues.
+3. Locate the `General Help` queue and click the link for the queue name.
 4. Assign yourself as a member of that queue.
-5. Go to the queue by clicking the slide bar in the upper right part of the screen.
-6. The callback should now pop up.  Accept it.
-7. You can then listen to the voicemail by clicking on it or perform an actual call by clicking on the phone number in the callback.
+5. Click the slide bar in the upper right corner to go to the queue.
+
+You should now see the callback. 
+
+6. Accept the callback.
+7. Click the voicemail icon to listen to it or call the number in the callback to place an actual call.
 
 ### Test the second scenario
-Testing the second scenario will be organization specific.  
+A second scenario involves organization-specific testing.  
 
-1.  Fail the voice traffic over to the other "warm" Genesys Cloud organization.
-2.  Make a call to the "warm" IVR.  You should be presented with a message indicating that there was an unexpected interruption in service and that you should leave a voicemail.
-3.  Leave a voicemail and hang up.
+1. Fail over voice traffic to the other "warm" Genesys Cloud organization.
+2. Call the "warm" IVR.  
 
-To hear the voicemail and process the callback:
+A message should indicate that service has been interrupted and you should leave a voicemail.
 
-1. Log into "Warm IVR" Genesys Cloud using an account with administrator access.
-2. Click the Admin -> Contact Center -> Queues.
-3. Locate the `General Help` queue and click on the link for the name of the queue.
+3. Hang up after leaving a voicemail.
+
+Process the callback and hear the voicemail:
+
+1. Log into "Warm IVR" Genesys Cloud using an administrator account.
+2. Click Admin -> Contact Center -> Queues.
+3. Locate the `General Help` queue and click on its link.
 4. Assign yourself as a member of that queue.
-5. Go to the queue by clicking the slide bar in the upper right part of the screen.
-6. The callback should now pop up.  Accept it.
-7. You can then listen to the voicemail by clicking on it or perform an actual call by clicking on the phone number in the callback.
+5. Click the slide bar in the upper right corner to go to the queue.You should now see the callback. 
+
+You should now see the callback. 
+
+6. Accept the callback.
+7. Click the voicemail icon to listen to it or call the number in the callback to place an actual call.
 
 ## Additional resources
 
-* [GitHub Actions](https://docs.github.com/en/actions "Opens the Github Actions page") in the GitHub website
-* [Terraform Cloud](https://app.terraform.io/signup/account "Opens the Terraform Cloud sign up page") in the Terraform Cloud website
-* [Terraform Registry Documentation](https://registry.terraform.io/providers/MyPureCloud/genesyscloud/latest/docs "Opens the Genesys Cloud provider page") in the Terraform documentation
-* [dr-fallback-ivr repository](https://github.com/GenesysCloudBlueprints/cx-as-code-cicd-gitactions-blueprint "Goes to the r-fallback-ivr repository") in Github
+* [GitHub Actions Documentation](https://docs.github.com/en/actions "Goes to the GitHub Actions Documentation page") on the GitHub website.
+* [Terraform Cloud](https://app.terraform.io/signup/account "Goes to the Terraform Cloud sign up page") on the Terraform Cloud website.
+* [Terraform Registry Documentation](https://registry.terraform.io/providers/MyPureCloud/genesyscloud/latest/docs "Goes to the Genesys Cloud provider page") on the Terraform website.
+* [dr-fallback-ivr repository](https://github.com/GenesysCloudBlueprints/cx-as-code-cicd-gitactions-blueprint "Goes to the r-fallback-ivr repository") in GitHub.
 
