@@ -1,0 +1,36 @@
+
+name: Genesys Cloud Failure IVR Deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  deploy-ivr-to-prod:
+    runs-on: ubuntu-latest
+    env:
+      TF_WORKSPACE: "prod"
+    steps:
+      - uses: actions/checkout@v2   
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_IVR_TOKEN }}
+      - run: |
+          cd blueprint/terraform-ivr
+          terraform init 
+          terraform apply --auto-approve
+  deploy-ivr-to-fallback:
+    runs-on: ubuntu-latest
+    needs: deploy-ivr-to-prod
+    env:
+      TF_WORKSPACE: "fallback_prod"
+    steps:
+      - uses: actions/checkout@v2   
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_IVR_TOKEN }}
+      - run: |
+          cd blueprint/terraform-warm-ivr
+          terraform init 
+          terraform apply --auto-approve        
+
+      
