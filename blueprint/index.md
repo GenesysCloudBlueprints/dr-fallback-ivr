@@ -72,7 +72,7 @@ Following the declaration of an emergency, these actions are taken:
 
 1. Voice traffic from the primary Genesys Cloud organization is manually failed to the secondary Genesys Cloud organization by a Genesys Cloud administrator. 
 
-2. IIn the secondary organization, there is a simple IVR that routes users to a voicemail box queue called `General Help`. Voicemails can be left by the customer. When a voicemail is left, a callback is created.
+2. In the secondary organization, there is a simple IVR that routes users to a voicemail box queue called `General Help`. Voicemails can be left by the customer. When a voicemail is left, a callback is created.
 
 3. A small group of agents log into the secondary organization to handle customer callbacks. In the secondary organization, it is important to assign the Genesys Cloud group `Emergency Group` to the `General Help` queue. Callbacks must be received by members of this group for agents to process the calls.
 
