@@ -17,10 +17,6 @@ provider "genesyscloud" {
 
 }
 
-data "genesyscloud_user" "admin_user" {
-  email = "john.carnell@genesys.com"
-}
-
 resource "genesyscloud_routing_queue" "general_help_queue" {
   name                              = "General Help"
   description                       = "General Help Queue"
