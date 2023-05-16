@@ -37,8 +37,6 @@ resource "genesyscloud_routing_queue" "general_help_queue" {
     threshold    = 9
     wait_seconds = 300
   }
-
-   groups= [genesyscloud_group.emergency_group.id]
 }
 
 resource "genesyscloud_flow" "deploy_ivr_flow" {
