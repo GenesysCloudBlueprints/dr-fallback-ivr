@@ -352,8 +352,8 @@ inboundCall:
                 exp: ToScheduleGroup(NOT_SET)
               emergencyGroup:
                 lit:
-                  name: Site Emergency Group
-                name: Site Emergency Group
+                  name: Organization Evacuation Emergency Group
+                name: Organization Evacuation Emergency Group
               outputs:
                 emergency:
                   actions:
