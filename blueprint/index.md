@@ -1,5 +1,5 @@
 ---
-title: Build resiliency in your IVR with Genesys Cloud emergency groups and callbacks
+title: Build business continuity in your IVR with Genesys Cloud emergency groups and callbacks
 author: john.carnell
 indextype: blueprint
 icon: blueprint
