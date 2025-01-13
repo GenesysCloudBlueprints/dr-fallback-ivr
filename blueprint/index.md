@@ -127,7 +127,7 @@ While the primary focus of this blueprint will be setting up a CI/CD pipeline, t
 1. [Clone the GitHub repository](#clone-the-github-repository "Goes to the Clone the GitHub repository section")
 2. [Define the Terraform Cloud configuration](#define-the-terraform-cloud-configuration "Goes to the Define the Terraform Cloud configuration section")
 3. [Define the GitHub Actions configuration](#define-the-github-actions-configuration "Goes to the Define the GitHub Actions configuration section")
-4. [Deploy the Genesys Cloud objects](#deploy-the-genesys-cloud-objects "Goes to the Deploy the Genesys Cloud objects section")
+4. [Deploy the Genesys Cloud objects with Github Actions](#deploy-the-genesys-cloud-objects-with-github-actions "Goes to the Deploy the Genesys Cloud objects with Github Actions section")
 5. [Test the deployment](#test-the-deployment "Goes to the Test the deployment section")
 
 ### Clone the GitHub repository
@@ -289,7 +289,8 @@ Once these values are set, Terraform scripts can run from the command line using
 terraform init
 terraform apply --auto-approve
 ```
-### Test the first scenario
+### Test the deployment
+#### Test the first scenario
 
 You can test the first IVR scenario by calling the phone number you entered in the `ivr_phone_number` parameter. If you do not activate the `Organization Evacuation Emergency Group` (created by the `blueprint/terraform-ivr/main.tf` Terraform script), you are presented with a "happy path" in the IVR. Take the following actions to test the "failure" path:
 
@@ -313,7 +314,7 @@ You should now see the callback.
 6. Accept the callback.
 7. Click the voicemail icon to listen to it or call the number in the callback to place an actual call.
 
-### Test the second scenario
+#### Test the second scenario
 A second scenario involves organization-specific testing.  
 
 1. Fail over voice traffic to the other "warm" Genesys Cloud organization.
