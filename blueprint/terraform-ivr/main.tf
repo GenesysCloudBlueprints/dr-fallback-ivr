@@ -4,13 +4,6 @@ terraform {
       source = "mypurecloud/genesyscloud"
     }
   }
-  backend "remote" {
-    organization = "thoughtmechanix"
-
-    workspaces {
-      prefix = "ivr_"
-    }
-  }
 }
 
 provider "genesyscloud" {
@@ -185,7 +178,6 @@ resource "genesyscloud_flow" "deploy_ivr_flow" {
   ]
 
     filepath          = "./DR-Emergency-IVR.yaml"
-    file_content_hash = filesha256( "./DR-Emergency-IVR.yaml")
     substitutions = {
       ivr_initial_greeting = "${var.ivr_initial_greeting}"
       ivr_failure = "${var.ivr_failure}"
